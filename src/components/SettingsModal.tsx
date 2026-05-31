@@ -1615,7 +1615,7 @@ export default function SettingsModal() {
                     ) : activeProfile.provider === 'fal' ? (
                       <span>默认使用 <code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">{DEFAULT_FAL_BASE_URL}</code>；填写自定义地址时将作为 fal.ai 代理 URL。</span>
                     ) : (
-                      <span>支持通过查询参数覆盖：<code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">?apiUrl=</code></span>
+                      <span>默认使用 VibeBridge API：<code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">https://api.vibebridge.top/v1</code>；支持通过查询参数覆盖：<code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">?apiUrl=</code></span>
                     )}
                   </div>
                 </label>
@@ -1678,6 +1678,9 @@ export default function SettingsModal() {
                       </svg>
                     )}
                   </button>
+                </div>
+                <div data-selectable-text className="mt-1.5 text-xs text-gray-500 dark:text-gray-500">
+                  不要在公共电脑或共享设备上保存 API Key。
                 </div>
                 <div data-selectable-text className="mt-1.5 text-xs text-gray-500 dark:text-gray-500">
                   支持通过查询参数覆盖：<code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">?apiKey=</code>

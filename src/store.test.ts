@@ -102,6 +102,13 @@ import { cleanStaleAgentInputDrafts, deleteAgentRoundFromConversation, deleteFav
 const imageA = { id: 'image-a', dataUrl: 'data:image/png;base64,a' }
 const imageB = { id: 'image-b', dataUrl: 'data:image/png;base64,b' }
 
+describe('VibeBridge defaults', () => {
+  it('uses the VibeBridge API URL and an empty API key by default', () => {
+    expect(DEFAULT_SETTINGS.baseUrl).toBe('https://api.vibebridge.top/v1')
+    expect(DEFAULT_SETTINGS.apiKey).toBe('')
+  })
+})
+
 describe('error toast messages', () => {
   it('drops long error detail after the failure title', () => {
     expect(getErrorToastMessage('Agent 请求失败：接口拒绝了很长的提示词内容')).toBe('Agent 请求失败')

@@ -4740,7 +4740,7 @@ export async function exportData(options: ExportOptions = { exportConfig: true, 
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `gpt-image-playground-backup_${formatExportFileTime(new Date(exportedAt))}.zip`
+    a.download = `vibebridge-image-lab-backup_${formatExportFileTime(new Date(exportedAt))}.zip`
     a.click()
     URL.revokeObjectURL(url)
     useStore.getState().showToast('数据已导出', 'success')
