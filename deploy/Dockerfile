@@ -20,10 +20,7 @@ FROM nginx:alpine
 
 ENV HOST=0.0.0.0
 ENV PORT=80
-ENV DEFAULT_API_URL=
-ENV API_PROXY_URL=
-ENV ENABLE_API_PROXY=false
-ENV LOCK_API_PROXY=false
+ENV DEFAULT_API_URL=https://api.vibebridge.top/v1
 
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY deploy/nginx.conf /etc/nginx/templates/default.conf.template
