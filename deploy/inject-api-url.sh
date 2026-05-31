@@ -1,18 +1,16 @@
 #!/bin/sh
 
-if [ "${DEFAULT_API_URL+x}" != "x" ]; then
-    DEFAULT_API_URL=https://api.vibebridge.top/v1
-fi
+DEFAULT_API_URL=${DEFAULT_API_URL:-https://api.vibebridge.top/v1}
 DOCKER_LEGACY_API_URL_USED=false
 API_PROXY_AVAILABLE=false
 API_PROXY_LOCKED=false
 
 escape_sed_replacement() {
-    printf '%s' "$1" | sed 's/[&|\]/\&/g'
+    printf '%s' "$1" | sed 's/[&|\\]/\\&/g'
 }
 
 escape_js_string() {
-    printf '%s' "$1" | sed 's/\/\\/g; s/"/\"/g'
+    printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
 }
 
 DEFAULT_API_URL_ESCAPED=$(escape_sed_replacement "$(escape_js_string "$DEFAULT_API_URL")")
