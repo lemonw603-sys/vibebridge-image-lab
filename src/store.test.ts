@@ -4,6 +4,7 @@ import { DEFAULT_PARAMS } from './types'
 import { createDefaultFalProfile, createDefaultOpenAIProfile, DEFAULT_RESPONSES_MODEL, DEFAULT_SETTINGS, normalizeSettings } from './lib/apiProfiles'
 import type { AgentConversation, ExportData, StoredImage, StoredImageThumbnail, TaskRecord } from './types'
 import { getSelectedImageMentionLabel } from './lib/promptImageMentions'
+import { getDefaultVibeBridgeApiCopy } from './components/SettingsModal'
 vi.mock('./lib/db', () => {
   const tasks = new Map<string, TaskRecord>()
   const images = new Map<string, StoredImage>()
@@ -1849,5 +1850,15 @@ describe('reused task API profile', () => {
       cancelText: '放弃提交',
     }))
     expect(state.showSettings).toBe(false)
+  })
+})
+
+
+describe('settings modal copy', () => {
+  it('uses the shared default API URL in settings copy', () => {
+    const copy = getDefaultVibeBridgeApiCopy()
+
+    expect(copy).toContain(DEFAULT_SETTINGS.baseUrl)
+    expect(copy).toContain('默认使用 VibeBridge API')
   })
 })

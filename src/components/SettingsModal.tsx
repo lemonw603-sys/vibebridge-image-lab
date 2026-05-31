@@ -48,6 +48,12 @@ const DEFAULT_COPY_IMPORT_URL_OPTIONS = {
   useNewApiModel: false,
 }
 
+const VIBEBRIDGE_API_COPY_PREFIX = '默认使用 VibeBridge API：'
+
+export function getDefaultVibeBridgeApiCopy() {
+  return `${VIBEBRIDGE_API_COPY_PREFIX}${DEFAULT_SETTINGS.baseUrl}`
+}
+
 type CopyImportUrlOptions = typeof DEFAULT_COPY_IMPORT_URL_OPTIONS
 
 function readCopyImportUrlOptions(): CopyImportUrlOptions {
@@ -1615,7 +1621,7 @@ export default function SettingsModal() {
                     ) : activeProfile.provider === 'fal' ? (
                       <span>默认使用 <code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">{DEFAULT_FAL_BASE_URL}</code>；填写自定义地址时将作为 fal.ai 代理 URL。</span>
                     ) : (
-                      <span>默认使用 VibeBridge API：<code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">{DEFAULT_SETTINGS.baseUrl}</code>；支持通过查询参数覆盖：<code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">?apiUrl=</code></span>
+                      <span>{VIBEBRIDGE_API_COPY_PREFIX}<code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">{DEFAULT_SETTINGS.baseUrl}</code>；支持通过查询参数覆盖：<code className="bg-gray-100 dark:bg-white/[0.06] px-1 py-0.5 rounded">?apiUrl=</code></span>
                     )}
                   </div>
                 </label>
