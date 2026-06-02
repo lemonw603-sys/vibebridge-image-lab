@@ -25,6 +25,8 @@ VibeBridge Image Lab 是 VibeBridge 的官方图片生成工作台，基于 MIT 
 - 不把上游 API Key、New API admin token、支付密钥、operator bearer token 写入代码、文档、构建产物或日志。
 - 不在公共电脑或共享设备上保存 API Key。
 - 代理模式必须另写设计并单独验收，不能通过 Docker/Nginx 环境变量临时打开。
+- 提交 Issue、PR、日志、截图和浏览器导出前，必须移除 API Key、token、账号 ID 和私有 URL。
+- 公开仓库或发布版本前，必须按 `docs/public-release-checklist.md` 完成检查。
 
 ## 本地开发
 
@@ -60,6 +62,12 @@ Default API URL: https://api.vibebridge.top/v1
 ```
 
 公开部署、DNS、Cloudflare Pages 项目创建和域名绑定都需要 Lemon 明确确认后才能执行。
+
+## 参与贡献与安全
+
+- 贡献流程见 `CONTRIBUTING.md`。
+- 漏洞报告和敏感信息处理规则见 `SECURITY.md`。
+- Bug 与功能建议请使用 `.github/ISSUE_TEMPLATE/` 中的模板，并避免粘贴密钥或真实账号数据。
 
 ## 上游与许可证
 
