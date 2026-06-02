@@ -1276,24 +1276,13 @@ export default function InputBar() {
       }
     }
 
-    // 阻止 contentEditable 默认换行
     if (e.key === 'Enter') {
       e.preventDefault()
 
-      const isModifier = e.ctrlKey || e.metaKey
-
-      if (settings.enterSubmit) {
-        if (e.shiftKey) {
-          insertPromptTextAtSelection('\n')
-        } else if (!isModifier) {
-          if (canSubmit) submitCurrentMode()
-        }
-      } else {
-        if (isModifier) {
-          if (canSubmit) submitCurrentMode()
-        } else {
-          insertPromptTextAtSelection('\n')
-        }
+      if (e.shiftKey) {
+        insertPromptTextAtSelection('\n')
+      } else if (canSubmit) {
+        submitCurrentMode()
       }
       return
     }
