@@ -683,7 +683,7 @@ export default function InputBar() {
   const [submitHover, setSubmitHover] = useState(false)
   const [attachHover, setAttachHover] = useState(false)
   const [imageHintId, setImageHintId] = useState<string | null>(null)
-  const [mobileCollapsed, setMobileCollapsed] = useState(false)
+  const [mobileCollapsed, setMobileCollapsed] = useState(false) // 默认展开，不折叠
   const [showSizePicker, setShowSizePicker] = useState(false)
   const [showMobileUploadMenu, setShowMobileUploadMenu] = useState(false)
   const [maskPreviewUrl, setMaskPreviewUrl] = useState('')
@@ -1558,8 +1558,8 @@ export default function InputBar() {
     const onTouchMove = (e: TouchEvent) => {
       const dy = e.touches[0].clientY - dragTouchRef.current.startY
       if (Math.abs(dy) > 10) dragTouchRef.current.moved = true
-      if (dy > 30) setMobileCollapsed(true)
-      if (dy < -30) setMobileCollapsed(false)
+      if (dy > 80) setMobileCollapsed(true)  // 向下滑动超过 80px 才折叠，避免误触
+      if (dy < -80) setMobileCollapsed(false) // 向上滑动超过 80px 才展开
     }
     const onTouchEnd = () => {
       if (dragTouchRef.current.moved) {
