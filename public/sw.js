@@ -1,4 +1,5 @@
-const CACHE_NAME = 'vibebridge-image-lab-v0.1.0'
+const APP_VERSION = new URL(self.location.href).searchParams.get('v') || 'dev'
+const CACHE_NAME = `vibebridge-image-lab-v${APP_VERSION}`
 const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './pwa-icon.svg']
 
 self.addEventListener('install', (event) => {
@@ -12,9 +13,16 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))),
+    ).then(() => self.clients.claim()).then(() =>
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) =>
+        Promise.all(
+          clients
+            .filter((client) => client.url.startsWith(self.location.origin))
+            .map((client) => client.navigate(client.url)),
+        ),
+      ),
     ),
   )
-  self.clients.claim()
 })
 
 self.addEventListener('fetch', (event) => {

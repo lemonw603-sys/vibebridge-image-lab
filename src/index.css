@@ -5,6 +5,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 暗色主题等浏览器扩展会在所有页面注入 .hidden { display: none !important; }，冲掉 Tailwind 的 sm:flex/sm:block 等响应式显示类，导致桌面端参数栏等元素消失。
+   用 !important 且通过 #root 提升优先级，只在 sm 及以上断点修复被覆盖的元素。 */
+@media (min-width: 640px) {
+  #root .sm\:flex { display: flex !important; }
+  #root .sm\:block { display: block !important; }
+  #root .sm\:inline { display: inline !important; }
+  #root .sm\:grid { display: grid !important; }
+  #root .sm\:table { display: table !important; }
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 240 10% 10%;

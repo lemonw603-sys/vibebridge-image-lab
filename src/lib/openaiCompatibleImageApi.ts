@@ -570,7 +570,7 @@ async function callImagesApiSingle(opts: CallApiOptions, profile: ApiProfile, cu
       if (profile.responseFormatB64Json) {
         formData.append('response_format', 'b64_json')
       }
-      if (profile.streamImages) {
+      if (!isEdit && profile.streamImages) {
         formData.append('stream', 'true')
         formData.append('partial_images', String(getStreamPartialImages(profile)))
       }
@@ -596,7 +596,8 @@ async function callImagesApiSingle(opts: CallApiOptions, profile: ApiProfile, cu
       for (let i = 0; i < imageBlobs.length; i++) {
         const blob = imageBlobs[i]
         const ext = blob.type.split('/')[1] || 'png'
-        formData.append('image[]', blob, `input-${i + 1}.${ext}`)
+        const fieldName = imageBlobs.length === 1 ? 'image' : 'image[]'
+        formData.append(fieldName, blob, `input-${i + 1}.${ext}`)
       }
 
       if (maskBlob) {

@@ -5,13 +5,17 @@ import App from './App'
 import 'streamdown/styles.css'
 import './index.css'
 import { installMobileViewportGuards } from './lib/viewport'
+import { registerAppServiceWorker } from './lib/serviceWorker'
 
 installMobileViewportGuards()
 
 if ('serviceWorker' in navigator) {
   if (import.meta.env.PROD) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch((error) => {
+      registerAppServiceWorker({
+        baseUrl: import.meta.env.BASE_URL,
+        appVersion: __APP_VERSION__,
+      }).catch((error) => {
         console.error('Service worker registration failed:', error)
       })
     })

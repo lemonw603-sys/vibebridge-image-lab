@@ -155,6 +155,72 @@ describe('callImageApi', () => {
     })
   })
 
+  it('sends a single edit input image as image instead of image array notation', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response(JSON.stringify({
+      data: [{ b64_json: 'aW1hZ2U=' }],
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }))
+
+    await callImageApi({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        apiKey: 'test-key',
+        streamImages: false,
+        profiles: DEFAULT_SETTINGS.profiles.map((profile) => ({
+          ...profile,
+          apiKey: 'test-key',
+          streamImages: false,
+        })),
+        activeProfileId: DEFAULT_SETTINGS.profiles[0].id,
+      },
+      prompt: 'remove watermark',
+      params: { ...DEFAULT_PARAMS },
+      inputImageDataUrls: ['data:image/png;base64,aW1hZQ=='],
+    })
+
+    const editCall = fetchMock.mock.calls.find(([url]) => String(url).includes('images/edits'))
+    expect(editCall).toBeTruthy()
+    const body = (editCall?.[1] as RequestInit).body as FormData
+    expect(body.get('image')).toBeInstanceOf(Blob)
+    expect(body.get('image[]')).toBeNull()
+  })
+
+  it('does not send streaming parameters on Images API edit requests', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response(JSON.stringify({
+      data: [{ b64_json: 'aW1hZ2U=' }],
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }))
+
+    await callImageApi({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        apiKey: 'test-key',
+        streamImages: true,
+        streamPartialImages: 3,
+        profiles: DEFAULT_SETTINGS.profiles.map((profile) => ({
+          ...profile,
+          apiKey: 'test-key',
+          streamImages: true,
+          streamPartialImages: 3,
+        })),
+        activeProfileId: DEFAULT_SETTINGS.profiles[0].id,
+      },
+      prompt: 'edit image',
+      params: { ...DEFAULT_PARAMS },
+      inputImageDataUrls: ['data:image/png;base64,aW1hZQ=='],
+    })
+
+    const editCall = fetchMock.mock.calls.find(([url]) => String(url).includes('images/edits'))
+    expect(editCall).toBeTruthy()
+    const body = (editCall?.[1] as RequestInit).body as FormData
+    expect(body.get('stream')).toBeNull()
+    expect(body.get('partial_images')).toBeNull()
+  })
+
   it('does not expect revised prompts on official Images API stream completed events', async () => {
     const streamBody = [
       'data: {"created_at":1779112721,"type":"image_generation.completed","b64_json":"ZmluYWw=","background":"opaque","output_format":"jpeg","quality":"medium","sequence_number":0,"size":"1448x1086","usage":{"total_tokens":1569}}',
