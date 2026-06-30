@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useStore } from '../store'
+import PromptGallery from './PromptGallery'
 
 type Example = {
   label: string
@@ -57,6 +59,7 @@ function focusPromptTextarea() {
 
 export default function EmptyStateExamples() {
   const setPrompt = useStore((s) => s.setPrompt)
+  const [galleryOpen, setGalleryOpen] = useState(false)
 
   const handlePick = (example: Example) => {
     setPrompt(example.prompt)
@@ -64,14 +67,44 @@ export default function EmptyStateExamples() {
   }
 
   return (
-    <div className="py-12 sm:py-16">
-      <div className="text-center mb-8 sm:mb-10">
+    <div className="py-10 sm:py-14">
+      <div className="text-center mb-6 sm:mb-8">
         <h2 className="text-base sm:text-lg font-medium text-gray-700 dark:text-gray-200">
-          试试这些示例
+          从案例开始，再调整成你的风格
         </h2>
         <p className="mt-1.5 text-xs sm:text-sm text-gray-400 dark:text-gray-500">
-          点击任意示例即可填入输入框，可继续编辑后再生成
+          浏览完整案例库找灵感，或直接点下方任意示例填入输入框
         </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setGalleryOpen(true)}
+        className="group block w-full mb-6 sm:mb-8 rounded-2xl border border-gray-200 dark:border-white/[0.08] bg-gradient-to-br from-white via-white to-gray-50 dark:from-white/[0.06] dark:via-white/[0.04] dark:to-white/[0.02] hover:border-gray-300 dark:hover:border-white/20 hover:shadow-md transition-all px-5 py-4 sm:px-6 sm:py-5 text-left"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex-shrink-0 grid grid-cols-2 gap-1 w-12 h-12 sm:w-14 sm:h-14">
+            <div className="rounded-md bg-gray-200 dark:bg-white/10" />
+            <div className="rounded-md bg-gray-300 dark:bg-white/15" />
+            <div className="rounded-md bg-gray-300 dark:bg-white/15" />
+            <div className="rounded-md bg-gray-200 dark:bg-white/10" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 text-sm sm:text-base font-medium text-gray-800 dark:text-gray-100">
+              <span>浏览案例库</span>
+              <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
+            <div className="mt-0.5 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              126 条精选 prompt + 预览图 · 头像 / 视频封面 / 信息图 / 漫画 / 营销
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <div className="text-center mb-3 sm:mb-4 text-xs text-gray-400 dark:text-gray-500">
+        或试试这些快速示例
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {EXAMPLES.map((example) => (
@@ -90,6 +123,7 @@ export default function EmptyStateExamples() {
           </button>
         ))}
       </div>
+      <PromptGallery open={galleryOpen} onClose={() => setGalleryOpen(false)} />
     </div>
   )
 }
