@@ -1,6 +1,4 @@
-import { useState } from 'react'
 import { useStore } from '../store'
-import PromptGallery from './PromptGallery'
 
 type Example = {
   label: string
@@ -59,7 +57,7 @@ function focusPromptTextarea() {
 
 export default function EmptyStateExamples() {
   const setPrompt = useStore((s) => s.setPrompt)
-  const [galleryOpen, setGalleryOpen] = useState(false)
+  const setShowPromptGallery = useStore((s) => s.setShowPromptGallery)
 
   const handlePick = (example: Example) => {
     setPrompt(example.prompt)
@@ -79,7 +77,7 @@ export default function EmptyStateExamples() {
 
       <button
         type="button"
-        onClick={() => setGalleryOpen(true)}
+        onClick={() => setShowPromptGallery(true)}
         className="group block w-full mb-6 sm:mb-8 rounded-2xl border border-gray-200 dark:border-white/[0.08] bg-gradient-to-br from-white via-white to-gray-50 dark:from-white/[0.06] dark:via-white/[0.04] dark:to-white/[0.02] hover:border-gray-300 dark:hover:border-white/20 hover:shadow-md transition-all px-5 py-4 sm:px-6 sm:py-5 text-left"
       >
         <div className="flex items-center gap-4">
@@ -123,7 +121,6 @@ export default function EmptyStateExamples() {
           </button>
         ))}
       </div>
-      <PromptGallery open={galleryOpen} onClose={() => setGalleryOpen(false)} />
     </div>
   )
 }

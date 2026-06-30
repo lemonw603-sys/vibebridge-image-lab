@@ -89,6 +89,8 @@ export default function Header() {
   const installTooltip = useTooltip()
   const helpTooltip = useTooltip()
   const settingsTooltip = useTooltip()
+  const galleryTooltip = useTooltip()
+  const setShowPromptGallery = useStore((s) => s.setShowPromptGallery)
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: Event) => {
@@ -255,6 +257,29 @@ export default function Header() {
             </button>
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            <div
+              className="relative"
+              {...galleryTooltip.handlers}
+            >
+              <button
+                onClick={() => {
+                  dismissAllTooltips()
+                  setShowPromptGallery(true)
+                }}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
+                aria-label="案例库"
+              >
+                <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" strokeWidth="1.7" />
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" strokeWidth="1.7" />
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" strokeWidth="1.7" />
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" strokeWidth="1.7" />
+                </svg>
+              </button>
+              <ViewportTooltip visible={galleryTooltip.visible} className="whitespace-nowrap">
+                案例库
+              </ViewportTooltip>
+            </div>
             {!isPwaInstalled && (
               <div
                 className="relative"

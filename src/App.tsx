@@ -18,6 +18,7 @@ import Toast from './components/Toast'
 import MaskEditorModal from './components/MaskEditorModal'
 import ImageContextMenu from './components/ImageContextMenu'
 import SupportPromptModal from './components/SupportPromptModal'
+import PromptGallery from './components/PromptGallery'
 import { FavoriteCollectionPickerModal, FavoriteCollectionsView, ManageCollectionsModal } from './components/FavoriteCollections'
 import { useGlobalClickSuppression } from './lib/clickSuppression'
 
@@ -28,6 +29,8 @@ export default function App() {
   const appMode = useStore((s) => s.appMode)
   const filterFavorite = useStore((s) => s.filterFavorite)
   const activeFavoriteCollectionId = useStore((s) => s.activeFavoriteCollectionId)
+  const showPromptGallery = useStore((s) => s.showPromptGallery)
+  const setShowPromptGallery = useStore((s) => s.setShowPromptGallery)
   useDockerApiUrlMigrationNotice()
   useGlobalClickSuppression()
 
@@ -97,6 +100,7 @@ export default function App() {
       <Toast />
       <MaskEditorModal />
       <ImageContextMenu />
+      <PromptGallery open={showPromptGallery} onClose={() => setShowPromptGallery(false)} />
     </>
   )
 }

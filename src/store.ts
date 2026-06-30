@@ -883,6 +883,8 @@ interface AppState {
   showSettings: boolean
   settingsTabRequest: SettingsTab | null
   setShowSettings: (v: boolean, tab?: SettingsTab) => void
+  showPromptGallery: boolean
+  setShowPromptGallery: (v: boolean) => void
   supportPromptOpen: boolean
   supportPromptDismissed: boolean
   supportPromptSkippedForImportedData: boolean
@@ -1574,6 +1576,11 @@ export const useStore = create<AppState>()(
           ...(settingsTabRequest ? { settingsTabRequest } : {}),
           ...(!showSettings ? { settingsTabRequest: null } : {}),
         })
+      },
+      showPromptGallery: false,
+      setShowPromptGallery: (showPromptGallery) => {
+        if (showPromptGallery) dismissAllTooltips()
+        set({ showPromptGallery })
       },
       supportPromptOpen: false,
       supportPromptDismissed: false,
