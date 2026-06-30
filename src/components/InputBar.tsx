@@ -684,6 +684,7 @@ export default function InputBar() {
   const [attachHover, setAttachHover] = useState(false)
   const [imageHintId, setImageHintId] = useState<string | null>(null)
   const [mobileCollapsed, setMobileCollapsed] = useState(false) // 默认展开，不折叠
+  const [desktopParamsExpanded, setDesktopParamsExpanded] = useState(false)
   const [showSizePicker, setShowSizePicker] = useState(false)
   const [showMobileUploadMenu, setShowMobileUploadMenu] = useState(false)
   const [maskPreviewUrl, setMaskPreviewUrl] = useState('')
@@ -2300,62 +2301,12 @@ export default function InputBar() {
             )
           )}
 
-          {/* 桌面端参数 + 按钮 */}
-          <div className="mb-3 hidden sm:flex items-end justify-between gap-3">
-            {renderParams('grid-cols-6')}
-
-            <div className="flex gap-2 flex-shrink-0 mb-0.5">
-              <div
-                className="relative"
-                onMouseEnter={() => setAttachHover(true)}
-                onMouseLeave={() => setAttachHover(false)}
-              >
-                <ButtonTooltip visible={attachHover} text={uploadImageTooltipText} />
-                <button
-                  onClick={() => !atImageLimit && fileInputRef.current?.click()}
-                  className={`p-2.5 rounded-xl transition-all shadow-sm ${
-                    atImageLimit
-                      ? 'bg-gray-200 dark:bg-white/[0.04] text-gray-300 dark:text-gray-500 cursor-not-allowed'
-                      : 'bg-gray-200 dark:bg-white/[0.06] hover:bg-gray-300 dark:hover:bg-white/[0.1] text-gray-500 dark:text-gray-300 hover:shadow'
-                  }`}
-                  aria-label={uploadImageTooltipText}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                  </svg>
-                </button>
-              </div>
-              <div
-                className="relative"
-                onMouseEnter={() => setSubmitHover(true)}
-                onMouseLeave={() => setSubmitHover(false)}
-              >
-                <ButtonTooltip visible={(activeAgentIsRunning || !hasSubmitApiConfig) && submitHover} text={submitTooltipText} />
-                <button
-                  onClick={() => activeAgentIsRunning ? stopActiveAgentResponse() : hasSubmitApiConfig ? submitCurrentMode() : setShowSettings(true)}
-                  disabled={activeAgentIsRunning ? false : hasSubmitApiConfig ? !canSubmit : false}
-                  className={`p-2.5 rounded-xl transition-all shadow-sm hover:shadow ${
-                    activeAgentIsRunning
-                      ? 'bg-red-500 text-white hover:bg-red-600'
-                      : !hasSubmitApiConfig
-                      ? 'bg-gray-300 dark:bg-white/[0.06] text-white cursor-pointer'
-                      : 'bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-white/[0.04] disabled:opacity-50 disabled:cursor-not-allowed'
-                  }`}
-                  aria-label={submitButtonAriaLabel}
-                >
-                  {activeAgentIsRunning ? (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <rect x="7" y="7" width="10" height="10" rx="1.5" />
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  )}
-                </button>
-              </div>
+          {/* 桌面端：展开的参数面板（位于 prompt 上方） */}
+          {desktopParamsExpanded && (
+            <div className="mb-3 hidden sm:flex items-end gap-3">
+              {renderParams('grid-cols-6')}
             </div>
-          </div>
+          )}
 
           {/* 输入框 */}
           <div className="relative grid">
@@ -2388,6 +2339,7 @@ export default function InputBar() {
             )}
             <div
               ref={textareaRef}
+              data-prompt-textarea
               contentEditable
               suppressContentEditableWarning
               onInput={(e) => {
@@ -2452,6 +2404,84 @@ export default function InputBar() {
                 <CloseIcon className="w-3.5 h-3.5" />
               </button>
             )}
+          </div>
+
+          {/* 桌面端：操作行（参数 toggle + 附件 + 提交） */}
+          <div className="mt-3 hidden sm:flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setDesktopParamsExpanded((v) => !v)}
+              className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 px-2.5 py-1.5 rounded-lg hover:bg-gray-100/70 dark:hover:bg-white/[0.06] transition-colors"
+              aria-expanded={desktopParamsExpanded}
+            >
+              <span>参数设置</span>
+              <svg
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${desktopParamsExpanded ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <div className="flex gap-2 flex-shrink-0">
+              <div
+                className="relative"
+                onMouseEnter={() => setAttachHover(true)}
+                onMouseLeave={() => setAttachHover(false)}
+              >
+                <ButtonTooltip visible={attachHover} text={uploadImageTooltipText} />
+                <button
+                  onClick={() => !atImageLimit && fileInputRef.current?.click()}
+                  className={`p-2.5 rounded-xl transition-all shadow-sm ${
+                    atImageLimit
+                      ? 'bg-gray-200 dark:bg-white/[0.04] text-gray-300 dark:text-gray-500 cursor-not-allowed'
+                      : 'bg-gray-200 dark:bg-white/[0.06] hover:bg-gray-300 dark:hover:bg-white/[0.1] text-gray-500 dark:text-gray-300 hover:shadow'
+                  }`}
+                  aria-label={uploadImageTooltipText}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                </button>
+              </div>
+              <div
+                className="relative"
+                onMouseEnter={() => setSubmitHover(true)}
+                onMouseLeave={() => setSubmitHover(false)}
+              >
+                <ButtonTooltip visible={(activeAgentIsRunning || !hasSubmitApiConfig) && submitHover} text={submitTooltipText} />
+                <button
+                  onClick={() => activeAgentIsRunning ? stopActiveAgentResponse() : hasSubmitApiConfig ? submitCurrentMode() : setShowSettings(true)}
+                  disabled={activeAgentIsRunning ? false : hasSubmitApiConfig ? !canSubmit : false}
+                  className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl transition-all shadow-sm hover:shadow text-sm font-medium ${
+                    activeAgentIsRunning
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : !hasSubmitApiConfig
+                      ? 'bg-gray-300 dark:bg-white/[0.06] text-white cursor-pointer'
+                      : 'bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-white/[0.04] disabled:opacity-50 disabled:cursor-not-allowed'
+                  }`}
+                  aria-label={submitButtonAriaLabel}
+                >
+                  {activeAgentIsRunning ? (
+                    <>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <rect x="7" y="7" width="10" height="10" rx="1.5" />
+                      </svg>
+                      <span>停止</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                      <span>生成</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* 移动端参数 + 按钮 */}
