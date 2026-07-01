@@ -61,3 +61,26 @@ export function loadGallery(): Promise<GalleryData> {
   }
   return cache
 }
+
+const HIDDEN_STORAGE_KEY = 'vibebridge:gallery:hidden'
+
+export function loadHiddenIds(): Set<string> {
+  if (typeof window === 'undefined') return new Set()
+  try {
+    const raw = window.localStorage.getItem(HIDDEN_STORAGE_KEY)
+    if (!raw) return new Set()
+    const arr = JSON.parse(raw)
+    return Array.isArray(arr) ? new Set(arr.filter((x) => typeof x === 'string')) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+export function saveHiddenIds(ids: Set<string>): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(HIDDEN_STORAGE_KEY, JSON.stringify([...ids]))
+  } catch {
+    /* ignore quota errors */
+  }
+}

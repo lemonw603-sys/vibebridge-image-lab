@@ -4,6 +4,8 @@ import {
   cleanPromptText,
   getCategoryLabel,
   loadGallery,
+  loadHiddenIds,
+  saveHiddenIds,
   type GalleryData,
   type GalleryPrompt,
 } from '../lib/gallery'
@@ -39,6 +41,23 @@ export default function PromptGallery({ open, onClose }: Props) {
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState<GalleryPrompt | null>(null)
   const [copied, setCopied] = useState(false)
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => loadHiddenIds())
+  const [showHidden, setShowHidden] = useState(false)
+
+  const persistHidden = (next: Set<string>) => {
+    setHiddenIds(next)
+    saveHiddenIds(next)
+  }
+  const hideEntry = (id: string) => {
+    const next = new Set(hiddenIds)
+    next.add(id)
+    persistHidden(next)
+  }
+  const restoreEntry = (id: string) => {
+    const next = new Set(hiddenIds)
+    next.delete(id)
+    persistHidden(next)
+  }
 
   useEffect(() => {
     if (!open || data) return
@@ -85,6 +104,8 @@ export default function PromptGallery({ open, onClose }: Props) {
     if (!data) return []
     const q = search.trim().toLowerCase()
     return data.prompts.filter((p) => {
+      const isHidden = hiddenIds.has(p.id)
+      if (showHidden ? !isHidden : isHidden) return false
       if (activeCategory !== 'all' && p.category !== activeCategory) return false
       if (!q) return true
       return (
@@ -94,7 +115,7 @@ export default function PromptGallery({ open, onClose }: Props) {
         getCategoryLabel(p.category).toLowerCase().includes(q)
       )
     })
-  }, [data, activeCategory, search])
+  }, [data, activeCategory, search, hiddenIds, showHidden])
 
   const handleUsePrompt = (entry: GalleryPrompt) => {
     setPrompt(cleanPromptText(entry.prompt))
@@ -167,10 +188,28 @@ export default function PromptGallery({ open, onClose }: Props) {
 
         {data && (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-3 flex gap-2 overflow-x-auto custom-scrollbar">
+            {hiddenIds.size > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowHidden((v) => !v)}
+                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors ${
+                  showHidden
+                    ? 'bg-amber-500 text-white'
+                    : 'bg-white/70 dark:bg-white/[0.04] text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.08] border border-dashed border-gray-300 dark:border-white/[0.12]'
+                }`}
+                title={showHidden ? '退出隐藏视图' : '查看已隐藏的案例'}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+                <span>{showHidden ? '退出隐藏' : '已隐藏'}</span>
+                <span className={`text-[10px] ${showHidden ? 'opacity-70' : 'opacity-50'}`}>{hiddenIds.size}</span>
+              </button>
+            )}
             <CategoryChip
               active={activeCategory === 'all'}
               label="全部"
-              count={data.totalEntries}
+              count={data.totalEntries - (showHidden ? 0 : hiddenIds.size)}
               onClick={() => setActiveCategory('all')}
             />
             {categories.map((cat) => (
@@ -195,12 +234,21 @@ export default function PromptGallery({ open, onClose }: Props) {
             <div className="text-center py-20 text-sm text-gray-400">正在加载案例库...</div>
           )}
           {data && filtered.length === 0 && (
-            <div className="text-center py-20 text-sm text-gray-400">没有匹配的案例</div>
+            <div className="text-center py-20 text-sm text-gray-400">
+              {showHidden ? '没有已隐藏的案例' : '没有匹配的案例'}
+            </div>
           )}
           {data && filtered.length > 0 && (
             <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 sm:gap-4 [column-fill:_balance]">
               {filtered.map((entry) => (
-                <GalleryCard key={entry.id} entry={entry} onOpen={() => setDetail(entry)} />
+                <GalleryCard
+                  key={entry.id}
+                  entry={entry}
+                  hidden={showHidden}
+                  onOpen={() => setDetail(entry)}
+                  onHide={() => hideEntry(entry.id)}
+                  onRestore={() => restoreEntry(entry.id)}
+                />
               ))}
             </div>
           )}
@@ -247,32 +295,71 @@ function CategoryChip({
   )
 }
 
-function GalleryCard({ entry, onOpen }: { entry: GalleryPrompt; onOpen: () => void }) {
+function GalleryCard({
+  entry,
+  hidden,
+  onOpen,
+  onHide,
+  onRestore,
+}: {
+  entry: GalleryPrompt
+  hidden: boolean
+  onOpen: () => void
+  onHide: () => void
+  onRestore: () => void
+}) {
   const img = entry.images[0]
+  const handleAction = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (hidden) onRestore()
+    else onHide()
+  }
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="group relative mb-3 sm:mb-4 block w-full overflow-hidden rounded-xl border border-gray-200/60 dark:border-white/[0.06] bg-white dark:bg-white/[0.03] text-left transition-all hover:shadow-md hover:-translate-y-0.5"
+    <div
+      className={`group relative mb-3 sm:mb-4 block w-full overflow-hidden rounded-xl border border-gray-200/60 dark:border-white/[0.06] bg-white dark:bg-white/[0.03] text-left transition-all hover:shadow-md hover:-translate-y-0.5 ${
+        hidden ? 'opacity-60' : ''
+      }`}
     >
-      {img ? (
-        <img
-          src={img}
-          alt={entry.title}
-          loading="lazy"
-          className="w-full h-auto block"
-          referrerPolicy="no-referrer"
-        />
-      ) : (
-        <div className="aspect-square bg-gray-100 dark:bg-white/[0.04]" />
-      )}
-      <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="text-[10px] uppercase tracking-wide text-white/70 mb-0.5">
-          {getCategoryLabel(entry.category)}
+      <button
+        type="button"
+        onClick={handleAction}
+        title={hidden ? '恢复显示' : '不再显示这张'}
+        className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/90 dark:bg-gray-900/90 text-gray-500 hover:text-gray-800 dark:hover:text-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        {hidden ? (
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        ) : (
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        )}
+      </button>
+      <button
+        type="button"
+        onClick={onOpen}
+        className="block w-full text-left"
+      >
+        {img ? (
+          <img
+            src={img}
+            alt={entry.title}
+            loading="lazy"
+            className="w-full h-auto block"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className="aspect-square bg-gray-100 dark:bg-white/[0.04]" />
+        )}
+        <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <div className="text-[10px] uppercase tracking-wide text-white/70 mb-0.5">
+            {getCategoryLabel(entry.category)}
+          </div>
+          <div className="text-xs sm:text-sm font-medium text-white line-clamp-2">{entry.title}</div>
         </div>
-        <div className="text-xs sm:text-sm font-medium text-white line-clamp-2">{entry.title}</div>
-      </div>
-    </button>
+      </button>
+    </div>
   )
 }
 
