@@ -12,6 +12,17 @@
 - 不开启公开 API 代理；代理模式必须另写设计并单独验收。
 - 用户图片历史和 API Key 只按前端本地存储处理，不承诺云端保存。
 
+## 部署（2026-07-16 起：只用 wrangler 直传，不走 Git 自动部署）
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name vibebridge-image-lab --branch master --commit-dirty=true
+```
+
+- 线上域名：`https://image.vibebridge.top` / `https://vibebridge-image-lab.pages.dev`，Pages 项目 `vibebridge-image-lab`，生产分支 `master`（直传时 `--branch master` 必须带，否则不会成为生产部署）。
+- **为什么禁用了 Git 自动部署**：该 Pages 项目的 Git 集成曾被错误连接到另一个仓库 `lemonw603-sys/vibebridge`（中转站项目），且构建命令为空——导致那个仓库每次 push 都会把仓库根目录当静态站部署，抢占生产并把本站打成 404（2026-07 上旬实际发生，全站 404 一周+）。API 无法改绑仓库，2026-07-16 已把该项目的 `deployments_enabled` 全部关掉止血。
+- **如果要恢复 Git 自动部署**：必须去 Cloudflare Dashboard → Pages → vibebridge-image-lab → Settings → Builds & deployments，把 Git 仓库改绑到 `lemonw603-sys/vibebridge-image-lab`（分支 `master`，build `npm run build`，输出 `dist`），确认后再重新开启 deployments。改绑前不要重新打开自动部署。
+
 ## 验证命令
 
 ```bash
